@@ -81,7 +81,11 @@ def accentuate_syllable(syllable: str):
 def force_accent_word(word: str) -> str:
     if re.search('[áéíóúÁÉÍÓÚ]', word) is not None:
         return word
-    syllables = pylabeador.syllabify(word)
+    try:
+        syllables = pylabeador.syllabify(word)
+    except pylabeador.HyphenatorError:
+        return word
+    
     accented_index = get_accented_index(syllables)
 
     syllables[accented_index] = accentuate_syllable(syllables[accented_index])
@@ -108,16 +112,19 @@ def fonetize_sentence(sentence: str):
         r'(?<![\S\s])y(?![\S\s])' : 'i',
         r'(?<!c)(h)': '', #delete "h" but not "ch"
         r'c(?=[ieíé])' : 'z', #replace 'ce' 'ci' with 'ze' 'zi'
-        r'c(?!h)' : 'k', #replace lone 'c' with 'k'
-        r'll' : 'y', #replace 'll' with 'y'. This varies by variety of spanish.
+        r'c(?!h)' : 'k', #replace lone 'c' with 'k
         r'g(?=[ieíé])' : 'j', #replace 'ge' 'gi' with 'je' 'ji'
         r'gu(?=[ieíé])' : 'g', #replace 'gue' 'gui' with 'ge' 'gi'
         r'qu' : 'k', #replace 'qu' por 'k'
-        r'(?<=[aeouáéóú])y': 'i', #replace 'y' with 'i' when preceded by vocals (ex. muy -> mui)
+        r'(?<=[aeouáéóú])y(?=\s)': 'i', #replace 'y' with 'i' when preceded by vocals (ex. muy -> mui)
+        r'll' : 'y', #replace 'll' with 'y'. This varies by variety of spanish.
         r'(?<![\s])b' : 'v',  # replace 'b' with 'v' if not at the start of word
         r'(?<![\S\s])v' : 'b', # replace 'v' with 'b' if at the start of word
         r'(?<=[\s])v' : 'b', # replace 'v' with 'b' if at the start of word
         r'ü' : 'u',
+        r'(?<=\s)r(?=\S)(?!r)' : 'rr', 
+        r'w' : 'u',
+        r'x' : 'ks',
     }
     
     for key, value in replace.items():
@@ -139,10 +146,12 @@ def fonetize(base_text: str) -> str:
             fonetized_sentences.append(fonetize_sentence(sentence))
 
         fonetized_text += " ".join(fonetized_sentences) + "\n"
+
+    print(fonetized_text)
     
     return fonetized_text
 
 
-#text = fonetize("viejo Había una vez una vaca en la quebrada de humahuaca. \nEra muy vieja, muy vieja! Lingüistica, cuidate, interviur, lingüir")
+#text = fonetize("viejo Había una vez una vaca en la quebrada de humahuaca. \nEra muy vieja, muy vieja! Lingüistica, cuidate, interviur, lingüir, rápido, wálter")
 
 #print(text)
