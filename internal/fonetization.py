@@ -146,8 +146,6 @@ def fonetize(base_text: str) -> str:
             fonetized_sentences.append(fonetize_sentence(sentence))
 
         fonetized_text += " ".join(fonetized_sentences) + "\n"
-
-    print(fonetized_text)
     
     return fonetized_text
 

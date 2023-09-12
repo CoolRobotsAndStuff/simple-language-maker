@@ -2,7 +2,8 @@ import re
 import copy
 
 import fonetization
-import random
+
+from random_language import make_random_language
 
 
 def complete_dict(dictionary: dict) -> dict:
@@ -20,9 +21,11 @@ def complete_dict(dictionary: dict) -> dict:
         "U": "Ú",
 
     }
+    # Add uppercase vesions
     for key, value in copy.copy(dictionary).items():
         dictionary[key.upper()] = value.upper()
 
+    # Accent letters
     for key, value in dictionary.items():
         new_dict[key] = value
         if key in non_acc_to_acc.keys():
@@ -42,17 +45,17 @@ def divide_into_phonemes(text: str) -> list:
     return re.findall(regex, text)
 
 
-def translate(text: str, swaps: dict, replace: dict) -> str:
-    text = fonetization.fonetize(text)
+def translate(text: list, phoneme_circles: list) -> str:
+    phoneme_circles = copy.deepcopy(phoneme_circles)
+    replace = {}
+    for circle in phoneme_circles:
+        circle.reverse()
+        for index in range(len(circle) -1, -1, -1):
+            replace[circle[index]] = circle[index -1] 
 
-    complete_swaps = complete_dict(swaps)
     complete_replace = complete_dict(replace)
 
-    for key, value in copy.copy(complete_swaps).items():
-        complete_replace[value] = key
-        complete_replace[key] = value
-
-    print(complete_replace)
+    #print(complete_replace)
 
     phoneme_list = divide_into_phonemes(text)
 
@@ -60,42 +63,16 @@ def translate(text: str, swaps: dict, replace: dict) -> str:
         if c in complete_replace.keys():
             phoneme_list[index] = complete_replace[c]
             
-
     return "".join(phoneme_list)
 
-def make_random_language(excluded_phonemes=[]):
-    consonant_phonemes = ["b", "d", "f", "g", "j", "k", "l", "m", "n", "ñ", "p", "r", "rr", "s", "t", "v", "y", "z", "ch"]
-    vowel_phonemes = ["a", "e", "i", "o", "u"]
+def detranslate(text: list, phoneme_circles: list):
+    phoneme_circles = copy.deepcopy(phoneme_circles)
+    for c in phoneme_circles:
+        c.reverse()
 
-    replace = {}
-    for phoneme_set in consonant_phonemes, vowel_phonemes:
-        for excluded_phoneme in excluded_phonemes:
-            if excluded_phoneme in phoneme_set:
-                phoneme_set.remove(excluded_phoneme)
-        random.shuffle(phoneme_set)
-        phoneme_groups = []
-        phonemes_already_divided = 0
-        while True:
-            phonemes_left = len(phoneme_set) - phonemes_already_divided
-            if phonemes_left < 2:
-                break
-            group_size = random.randint(2, phonemes_left)
+    return translate(text, phoneme_circles)
 
-            group = phoneme_set[phonemes_already_divided: phonemes_already_divided+group_size]
 
-            phonemes_already_divided += group_size
-            phoneme_groups.append(group)
-
-        for group in phoneme_groups:
-            for index in range(len(group) -1, -1, -1):
-                replace[group[index]] = group[index -1] 
-
-        print(phoneme_groups)
-
-    
-    print(replace)
-
-    return {}, replace
 
 """
 print(translate(text, 
@@ -150,8 +127,12 @@ comunism = """ La Liga Comunista, una organización obrera internacional, que en
 
 Sin embargo, el Manifiesto es un documento histórico, que nosotros no nos creemos ya autorizados a modificar.  Tal vez una edición posterior aparezca precedida de una introducción que abarque el período que va desde 1847 hasta los tiempos actuales; la presente reimpresión nos ha sorprendido sin dejarnos tiempo para eso. """
 
-swap, replace = make_random_language(excluded_phonemes=["ñ"])
+phoneme_circles = make_random_language(excluded_phonemes=["ñ"])
 
-print(translate(comunism, swap, replace))
+text = fonetization.fonetize(text)
 
-#print(translate(translate(text)))
+print(phoneme_circles)
+
+print(translate(text, phoneme_circles))
+
+print(detranslate(translate(text, phoneme_circles), phoneme_circles))
