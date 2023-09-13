@@ -1,8 +1,9 @@
 import random
+from src.internal.spanish_utils import VOWELS_UNACCENTED_LOWERCASE
 
 def make_random_language(excluded_phonemes=[]):
     consonant_phonemes = ["b", "d", "f", "g", "j", "k", "l", "m", "n", "ñ", "p", "r", "rr", "s", "t", "v", "y", "z", "ch"]
-    vowel_phonemes = ["a", "e", "i", "o", "u"]
+    vowel_phonemes = list(VOWELS_UNACCENTED_LOWERCASE)
 
     phoneme_groups = []
     for phoneme_set in consonant_phonemes, vowel_phonemes:

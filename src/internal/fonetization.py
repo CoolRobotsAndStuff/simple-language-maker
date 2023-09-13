@@ -2,74 +2,46 @@ import unicodedata
 import pylabeador
 from nltk.tokenize import sent_tokenize
 import re
-
-accented_characters = ("á", "é", "í", "ó", "ú")
-
-vowels = ("a", "e", "i", "o", "u")
-
-accented_to_non_accented = {
-    "á": "a",
-    "é": "e",
-    "í": "i",
-    "ó": "o",
-    "ú": "u"
-}
+import src.internal.spanish_utils as su
 
 def get_accented_index(syllables: list) -> int:
-    
-        
     if len(syllables) == 1:
         return 0
     
     last_letter = list(syllables[-1])[-1] 
-    if last_letter in vowels or last_letter in ("n", "s"):
+    if last_letter in su.VOWELS or last_letter in ("n", "s"):
         return len(syllables) - 2
 
     else:
         return len(syllables) -1
     
 def accentuate_syllable(syllable: str):
-    non_acc_to_acc = {
-        "a": "á",
-        "e": "é",
-        "i": "í",
-        "o": "ó",
-        "u": "ú",
-        "A": "Á",
-        "E": "É",
-        "I": "Í",
-        "O": "Ó",
-        "U": "Ú",
-
-    }
-    if re.search(r'[áéíóúÁÉÍÓÚ]', syllable) is not None:
+    if re.search(f'[{su.STR_VOWELS_ACCENTED}]', syllable) is not None:
         return syllable
     
-    vowels = list(re.finditer(r'[aeiouAEIOU]', syllable))
+    vowels = list(re.finditer(f'[{su.STR_VOWELS_UNACCENTED}]', syllable))
 
     if len(vowels) == 1:
-        return syllable[:vowels[0].start()] + non_acc_to_acc[syllable[vowels[0].start()]] + syllable[vowels[0].end():]
+        return syllable[:vowels[0].start()] + su.put_accent_mark(syllable[vowels[0].start()]) + syllable[vowels[0].end():]
     
-    closed_vowels = "iuüIUÜ"
-    
-    #TODO dipthongs
+    #TODO tripthongs
     replace = {
-        f'a(?=[{closed_vowels}])' : r'á',
-        f'e(?=[{closed_vowels}])' : r'é',
-        f'o(?=[{closed_vowels}])' : r'ó',
-        f'(?<=[{closed_vowels}])a' : r'á',
-        f'(?<=[{closed_vowels}])e' : r'é',
-        f'(?<=[{closed_vowels}])o' : r'ó',
-        f'(?<=[{closed_vowels}])i' : r'í',
-        f'(?<=[{closed_vowels}])u' : r'ú',
-        f'A(?=[{closed_vowels}])' : r'Á',
-        f'E(?=[{closed_vowels}])' : r'É',
-        f'O(?=[{closed_vowels}])' : r'Ó',
-        f'(?<=[{closed_vowels}])A' : r'Á',
-        f'(?<=[{closed_vowels}])E' : r'É',
-        f'(?<=[{closed_vowels}])O' : r'Ó',
-        f'(?<=[{closed_vowels}])I' : r'Í',
-        f'(?<=[{closed_vowels}])U' : r'Ú',
+        f'a(?=[{su.STR_VOWELS_CLOSED}])' : r'á',
+        f'e(?=[{su.STR_VOWELS_CLOSED}])' : r'é',
+        f'o(?=[{su.STR_VOWELS_CLOSED}])' : r'ó',
+        f'(?<=[{su.STR_VOWELS_CLOSED}])a' : r'á',
+        f'(?<=[{su.STR_VOWELS_CLOSED}])e' : r'é',
+        f'(?<=[{su.STR_VOWELS_CLOSED}])o' : r'ó',
+        f'(?<=[{su.STR_VOWELS_CLOSED}])i' : r'í',
+        f'(?<=[{su.STR_VOWELS_CLOSED}])u' : r'ú',
+        f'A(?=[{su.STR_VOWELS_CLOSED}])' : r'Á',
+        f'E(?=[{su.STR_VOWELS_CLOSED}])' : r'É',
+        f'O(?=[{su.STR_VOWELS_CLOSED}])' : r'Ó',
+        f'(?<=[{su.STR_VOWELS_CLOSED}])A' : r'Á',
+        f'(?<=[{su.STR_VOWELS_CLOSED}])E' : r'É',
+        f'(?<=[{su.STR_VOWELS_CLOSED}])O' : r'Ó',
+        f'(?<=[{su.STR_VOWELS_CLOSED}])I' : r'Í',
+        f'(?<=[{su.STR_VOWELS_CLOSED}])U' : r'Ú',
 
     }
 
@@ -79,7 +51,7 @@ def accentuate_syllable(syllable: str):
     return syllable
 
 def force_accent_word(word: str) -> str:
-    if re.search('[áéíóúÁÉÍÓÚ]', word) is not None:
+    if re.search(f'[{su.STR_VOWELS_ACCENTED}]', word) is not None:
         return word
     try:
         syllables = pylabeador.syllabify(word)
@@ -93,7 +65,7 @@ def force_accent_word(word: str) -> str:
     return "".join(syllables)
 
 def accent_all(base_text: str) -> str:
-    spanish_characters = r'[\wáéíóúüñÁÉÍÓÚÜÑ]+'
+    spanish_characters = f'[{su.STR_LETTERS}]+'
     word_matchs = re.finditer(spanish_characters, base_text)
 
     for match in word_matchs:
