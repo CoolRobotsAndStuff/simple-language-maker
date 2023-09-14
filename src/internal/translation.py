@@ -1,6 +1,7 @@
 import re
 from copy import copy, deepcopy
 from src.internal.spanish_utils import put_accent_mark
+from src.internal.simple_language import SimpleLanguage
 
 def complete_dict(dictionary: dict) -> dict:
     dictionary = copy(dictionary)
@@ -30,8 +31,8 @@ def divide_into_phonemes(text: str) -> list:
 
     return re.findall(regex, text)
 
-def translate(text: list, phoneme_circles: list) -> str:
-    phoneme_circles = deepcopy(phoneme_circles)
+def translate(text: list, language: SimpleLanguage) -> str:
+    phoneme_circles = deepcopy(language.phoneme_circles)
     replace = {}
     for circle in phoneme_circles:
         circle.reverse()
@@ -50,8 +51,8 @@ def translate(text: list, phoneme_circles: list) -> str:
             
     return "".join(phoneme_list)
 
-def detranslate(text: list, phoneme_circles: list):
-    phoneme_circles = deepcopy(phoneme_circles)
+def detranslate(text: list, language: SimpleLanguage):
+    phoneme_circles = deepcopy(language.phoneme_circles)
     for c in phoneme_circles:
         c.reverse()
     return translate(text, phoneme_circles)

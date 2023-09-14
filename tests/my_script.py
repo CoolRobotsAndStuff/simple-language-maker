@@ -37,7 +37,9 @@ se convirtieron en borricos.
 Y en ese lugar de Humahuaca
 la única sabia fue la vaca."""
 
-circles = make_random_language(['ñ'])
+language = make_random_language(['ñ'])
+
+print(language)
 
 fonetic_version = fonetize(text)
 

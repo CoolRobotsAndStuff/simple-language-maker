@@ -1,7 +1,8 @@
 import random
 from src.internal.spanish_utils import VOWELS_UNACCENTED_LOWERCASE
+from src.internal.simple_language import SimpleLanguage
 
-def make_random_language(excluded_phonemes=[]):
+def make_random_language(name="my_language", excluded_phonemes=[]):
     consonant_phonemes = ["b", "d", "f", "g", "j", "k", "l", "m", "n", "ñ", "p", "r", "rr", "s", "t", "v", "y", "z", "ch"]
     vowel_phonemes = list(VOWELS_UNACCENTED_LOWERCASE)
 
@@ -24,4 +25,4 @@ def make_random_language(excluded_phonemes=[]):
             phonemes_already_divided += group_size
             phoneme_groups.append(group)
 
-    return phoneme_groups
+    return SimpleLanguage(name=name, phoneme_circles=phoneme_groups)

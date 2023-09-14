@@ -106,20 +106,19 @@ def fonetize_sentence(sentence: str):
 
 def fonetize(base_text: str) -> str:
     base_text = unicodedata.normalize("NFC", base_text)
-
     base_text = accent_all(base_text)
-    paragraphs = base_text.split("\n")
-    fonetized_text = ""
-    for p in paragraphs:
-        sentences = sent_tokenize(p, language="spanish")
+    base_paragraphs = base_text.split("\n")
 
+    fonetized_paragraphs = []
+    for p in base_paragraphs:
+        sentences = sent_tokenize(p, language="spanish")
         fonetized_sentences = []
         for sentence in sentences:
             fonetized_sentences.append(fonetize_sentence(sentence))
 
-        fonetized_text += " ".join(fonetized_sentences) + "\n"
+        fonetized_paragraphs.append(" ".join(fonetized_sentences))
     
-    return fonetized_text
+    return "\n".join(fonetized_paragraphs)
 
 
 #text = fonetize("viejo Había una vez una vaca en la quebrada de humahuaca. \nEra muy vieja, muy vieja! Lingüistica, cuidate, interviur, lingüir, rápido, wálter")
