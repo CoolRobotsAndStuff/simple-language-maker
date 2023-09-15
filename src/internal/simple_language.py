@@ -10,7 +10,7 @@ class SimpleLanguage:
     phoneme_circles: list
 
 def save_to_file(location: Path, lang: SimpleLanguage):
-    with open(location / Path(lang.name + FILE_EXTENSION), "w") as file:
+    with open(location, "w") as file:
         dictionary = asdict(lang)
         file.write(json.dumps(dictionary))
 

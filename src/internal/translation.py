@@ -55,4 +55,6 @@ def detranslate(text: list, language: SimpleLanguage):
     phoneme_circles = deepcopy(language.phoneme_circles)
     for c in phoneme_circles:
         c.reverse()
-    return translate(text, phoneme_circles)
+    reverse_lang = deepcopy(language)
+    reverse_lang.phoneme_circles = phoneme_circles
+    return translate(text, reverse_lang)
