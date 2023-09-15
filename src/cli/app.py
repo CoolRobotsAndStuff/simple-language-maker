@@ -60,7 +60,7 @@ class TranslatorModel:
             pass
     
     def open_language_from_file(self):
-        file = filedialog.askopenfilename(defaultextension=internal.FILE_EXTENSION)
+        file = filedialog.askopenfilename(defaultextension=internal.FILE_EXTENSION, filetypes=[("Simple Language files", f"*{internal.FILE_EXTENSION}")])
         try:
             if isinstance(file, str):
                 self.current_loaded_language = internal.open_from_file(Path(file))
