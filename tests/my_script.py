@@ -37,8 +37,9 @@ se convirtieron en borricos.
 Y en ese lugar de Humahuaca
 la única sabia fue la vaca."""
 
-language = make_random_language(name="my_language", excluded_phonemes=['ñ',])
+#language = make_random_language(excluded_phonemes=['ñ',])
 
+"""
 print(language)
 
 fonetic_version = fonetize(text)
@@ -50,4 +51,12 @@ print("-----------------------------")
 translation = translation.translate(fonetic_version, language)
 
 print(translation)
+"""
+
+from textwrap import wrap
+
+
+print(wrap("hel a o wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww", 3, replace_whitespace=False, drop_whitespace=False))
+
+
 
