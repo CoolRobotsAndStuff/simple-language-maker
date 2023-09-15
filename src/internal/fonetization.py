@@ -89,6 +89,7 @@ def fonetize_sentence(sentence: str):
         r'gu(?=[ieíé])' : 'g', #replace 'gue' 'gui' with 'ge' 'gi'
         r'qu' : 'k', #replace 'qu' por 'k'
         r'(?<=[aeouáéóú])y(?=\s)': 'i', #replace 'y' with 'i' when preceded by vocals (ex. muy -> mui)
+        r'(?<=[aeouáéóú])y(?![\S\s])': 'i',
         r'll' : 'y', #replace 'll' with 'y'. This varies by variety of spanish.
         r'(?<![\s])b' : 'v',  # replace 'b' with 'v' if not at the start of word
         r'(?<![\S\s])v' : 'b', # replace 'v' with 'b' if at the start of word
