@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from pathlib import Path
 import json
 
@@ -11,8 +11,8 @@ class SimpleLanguage:
 
 def save_to_file(location: Path, lang: SimpleLanguage):
     with open(location / Path(lang.name + FILE_EXTENSION), "w") as file:
-        dictionary = dict(lang)
-        json.dump(dictionary, file)
+        dictionary = asdict(lang)
+        file.write(json.dumps(dictionary))
 
 def open_from_file(file_path: Path) -> SimpleLanguage:
     with open(file_path, "r") as file:
