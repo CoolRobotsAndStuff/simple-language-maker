@@ -33,6 +33,11 @@ def spanish(generated_language: internal.SimpleLanguage):
                                                 'La vio la maestra asustada',
                                                 'y dijo: Estas equivocada.',
                                                 'Y la vaca le respondió:',
-                                                '¿Por qué no puedo estudiar yo?',]
+                                                '¿Por qué no puedo estudiar yo?',],
+
+                                 "new_button": ["Nuevo Idioma"],
+                                 "save_button": ["Guardar como Archivo"],
+
                                  },
+                                 
                                 }

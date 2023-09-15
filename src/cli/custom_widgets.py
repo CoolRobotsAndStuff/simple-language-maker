@@ -52,7 +52,7 @@ class WrappedTextBox(TextBox):
                         else:
                             wrapped_subline = subline
                         
-                        self._reflowed_text_cache.append((wrapped_subline, line_index, subline_index))
+                        self._reflowed_text_cache.append((wrapped_subline, line_index, column))
                         column += len(wrapped_subline)
             else:
                 self._reflowed_text_cache = [(x, i, 0) for i, x in enumerate(self._value)]
@@ -99,7 +99,7 @@ class WrappedTextBoxEffect(Print):
         self.width = width
         self.wrapped_text, text_height = self.wrap_text(self.text, self.width, justify)
         self.height = text_height + 2
-        super().__init__(screen, SpeechBubble(self.wrapped_text, uni=uni), y=y, x=x)
+        super().__init__(screen, SpeechBubble(self.wrapped_text, uni=uni), y=y, x=x, speed=1)
     
     def wrap_text(self, text: str, width, justify):
         wrapped_text = []

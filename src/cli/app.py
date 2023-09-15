@@ -5,7 +5,7 @@ import sys
 import random
 import textwrap
 
-from asciimatics.widgets import Frame, Layout, Divider, Button, TextBox, Widget
+from asciimatics.widgets import Frame, Layout, Divider, Button, TextBox, Widget, VerticalDivider
 from asciimatics.scene import Scene
 from asciimatics.renderers import SpeechBubble
 from asciimatics.effects import Print
@@ -18,7 +18,13 @@ from src import internal
 from src.cli.custom_widgets import WrappedTextBox, Title, WrappedTextBoxEffect
 from src.cli.languages import spanish
 
-my_theme = defaultdict(
+from pathlib import Path
+
+import tkinter
+
+from tkinter import filedialog
+
+my_palette = defaultdict(
         lambda: (Screen.COLOUR_WHITE, Screen.A_NORMAL, Screen.COLOUR_BLACK),
         {
             "invalid": (Screen.COLOUR_BLACK, Screen.A_NORMAL, Screen.COLOUR_RED),
@@ -33,6 +39,23 @@ my_theme = defaultdict(
         }
 )
 
+class TranslatorModel:
+    def __init__(self) -> None:
+        self.current_language = internal.make_random_language()
+        self.language_pack = spanish(self.current_language)
+        tkinter.Tk().withdraw() # prevents an empty tkinter window from appearing
+
+    def set_random_language(self):
+        self.current_language = internal.make_random_language()
+        self.language_pack = spanish(self.current_language)
+
+    def save_current_language(self):
+        folder_path = filedialog.askdirectory()
+        internal.save_to_file(Path(folder_path), self.current_language)
+    
+    def open_language_from_file(self):
+        file = filedialog.askopenfilename(defaultextension=internal.FILE_EXTENSION, filetypes=[internal.FILE_EXTENSION])
+        self.current_language = internal.open_from_file(Path(file))
     
 class TabButtons(Layout):
     def __init__(self, frame: Frame, active_tab_idx):
@@ -67,7 +90,7 @@ class HomeUIFrame(Frame):
                          height=screen.height - y,
                          width=screen.width,
                          can_scroll=False, y=y)
-        self.palette = my_theme
+        self.palette = my_palette
         layout0 = Layout([1], True)
         instructions = WrappedTextBox(Widget.FILL_FRAME, line_wrap=True, readonly=True)
         instructions.hide_cursor = True
@@ -93,60 +116,142 @@ class HomeScene(Scene):
         super().__init__([title, HomeUIFrame(screen, language_pack, y=title.height)], -1, clear, name)
 
 class NewLanguageUIFrame(Frame):
-    def __init__(self, screen: Screen, language_pack, language, y):
-        self.language = language
+    def __init__(self, screen: Screen, model: TranslatorModel, y):
+        self._model = model
 
         super().__init__(screen,
                          height=screen.height - y,
                          width=screen.width,
                          can_scroll=False, y=y)
-        self.palette = my_theme
+        self.palette = my_palette
 
         self.my_screen = screen
 
-        translator_layout = Layout([1, 1], fill_frame=True)
+
+        title_layout = Layout([1])
+        self.add_layout(title_layout)
+        self.title_box = WrappedTextBox(1, line_wrap=True, readonly=True, justify='center')
+        self.title_box.value = self._model.language_pack["new_language"]["title"]
+        self.title_box.disabled = True
+
+
+        instructions_box = WrappedTextBox(4, line_wrap=True, readonly=True, justify='left')
+        instructions_box.value = self._model.language_pack["new_language"]["instructions"]
+        instructions_box.disabled = True
+
+
+        title_layout.add_widget(self.title_box)
+        title_layout.add_widget(Divider())
+        title_layout.add_widget(instructions_box)
+
+        divider_layout15 = Layout([1])
+        self.add_layout(divider_layout15)
+        divider_layout15.add_widget(Divider())
+
+        translator_layout = Layout([18, 1, 18], fill_frame=True)
         self.add_layout(translator_layout)
-        self.input_text = WrappedTextBox(Widget.FILL_COLUMN, line_wrap=True)
-        self.input_text.value = language_pack["new_language"]["test_poetry"]
+        self.translation_text = WrappedTextBox(Widget.FILL_COLUMN, line_wrap=True, readonly=True)
+        translator_layout.add_widget(self.translation_text, 2)
+        #self.translation_text.disabled = True
+        self.translation_text.value = [""]
+
+        translator_layout.add_widget(VerticalDivider(), 1)
+
+        self.input_text = WrappedTextBox(Widget.FILL_COLUMN, line_wrap=True, on_change=self.on_text_edit)
+        self.input_text.value = self._model.language_pack["new_language"]["test_poetry"]
         translator_layout.add_widget(self.input_text, 0)
 
-        self.translation_text = WrappedTextBox(Widget.FILL_COLUMN, line_wrap=True, readonly=True, on_change=self.on_text_edit)
-        translator_layout.add_widget(self.translation_text, 1)
-        self.translation_text.disabled = True
-        self.translation_text.value = ["Hellooo"]
+        divider_layout2 = Layout([1])
+        self.add_layout(divider_layout2)
+        divider_layout2.add_widget(Divider())
 
-        layout1 = Layout([1])
-        self.add_layout(layout1)
-        layout1.add_widget(Divider())
+        translator_buttons_layout = Layout([1, 1])
+        self.add_layout(translator_buttons_layout)
+        translator_buttons_layout.add_widget(Button(self._model.language_pack["new_language"]["new_button"][0], on_click=self.new_language), 0)
+        translator_buttons_layout.add_widget(Button(self._model.language_pack["new_language"]["save_button"][0], on_click=self._model.save_current_language), 1)
 
-        layout2 = TabButtons(self, 1)
-        self.add_layout(layout2)
+        divider_layout3 = Layout([1])
+        self.add_layout(divider_layout3)
+        divider_layout3.add_widget(Divider())
+
+        tab_buttons_layout = TabButtons(self, 1)
+        self.add_layout(tab_buttons_layout)
         self.fix()
 
     def on_text_edit(self):
         fonetized = internal.fonetize("\n".join(self.input_text.value))
-        self.translation_text._reflowed_text_cache = None
-        self.translation_text.value = internal.translate(fonetized, self.language).split("\n")
-        self.my_screen.force_update(True)
-        
+        self.translation_text.value = internal.translate(fonetized, self._model.current_language).split("\n")
+
+    def new_language(self):
+        self._model.set_random_language()
+        self.on_text_edit()
+        self.title_box.value = self._model.language_pack["new_language"]["title"]
+
 
 class NewLanguageScene(Scene):
-    def __init__(self, screen, language_pack, language, clear=True, name=None):
-        title = WrappedTextBoxEffect(screen, language_pack["new_language"]["title"], screen.width - 4)
-        instructions = WrappedTextBoxEffect(screen, language_pack["new_language"]["instructions"], screen.width - 4, y=title.height)
-        super().__init__([title, instructions, NewLanguageUIFrame(screen, language_pack, language, y=title.height + instructions.height)], -1, clear, name)
+    def __init__(self, screen, model, clear=True, name=None):
+        super().__init__([NewLanguageUIFrame(screen, model, y=0)], -1, clear, name)
 
 
-class BravoPage(Frame):
-    def __init__(self, screen):
+class TranslatorUIFrame(Frame):
+    def __init__(self, screen: Screen, model: TranslatorModel, y):
+        self._model = model
+
         super().__init__(screen,
-                         screen.height,
-                         screen.width,
-                         can_scroll=False,
-                         title="Bravo Page")
-        layout1 = Layout([1], fill_frame=True)
-        self.add_layout(layout1)
-        # add your widgets here
+                         height=screen.height - y,
+                         width=screen.width,
+                         can_scroll=False, y=y)
+        self.palette = my_palette
+
+        self.my_screen = screen
+
+
+        title_layout = Layout([1])
+        self.add_layout(title_layout)
+        self.title_box = WrappedTextBox(1, line_wrap=True, readonly=True, justify='center')
+        self.title_box.value = self._model.language_pack["translator"]["title"]
+        self.title_box.disabled = True
+
+
+        instructions_box = WrappedTextBox(4, line_wrap=True, readonly=True, justify='left')
+        instructions_box.value = self._model.language_pack["translator"]["instructions"]
+        instructions_box.disabled = True
+
+
+        title_layout.add_widget(self.title_box)
+        title_layout.add_widget(Divider())
+        title_layout.add_widget(instructions_box)
+
+        divider_layout15 = Layout([1])
+        self.add_layout(divider_layout15)
+        divider_layout15.add_widget(Divider())
+
+        translator_layout = Layout([18, 1, 18], fill_frame=True)
+        self.add_layout(translator_layout)
+        self.translation_text = WrappedTextBox(Widget.FILL_COLUMN, line_wrap=True, readonly=True)
+        translator_layout.add_widget(self.translation_text, 2)
+        #self.translation_text.disabled = True
+        self.translation_text.value = [""]
+
+        translator_layout.add_widget(VerticalDivider(), 1)
+
+        self.input_text = WrappedTextBox(Widget.FILL_COLUMN, line_wrap=True, on_change=self.on_text_edit)
+        self.input_text.value = self._model.language_pack["new_language"]["test_poetry"]
+        translator_layout.add_widget(self.input_text, 0)
+
+        divider_layout2 = Layout([1])
+        self.add_layout(divider_layout2)
+        divider_layout2.add_widget(Divider())
+
+        translator_buttons_layout = Layout([1, 1])
+        self.add_layout(translator_buttons_layout)
+        translator_buttons_layout.add_widget(Button(self._model.language_pack["new_language"]["new_button"][0], on_click=self.new_language), 0)
+        translator_buttons_layout.add_widget(Button(self._model.language_pack["new_language"]["save_button"][0], on_click=self._model.save_current_language), 1)
+
+        divider_layout3 = Layout([1])
+        self.add_layout(divider_layout3)
+        divider_layout3.add_widget(Divider())
+
 
         layout2 = TabButtons(self, 2)
         self.add_layout(layout2)
@@ -156,15 +261,14 @@ class BravoPage(Frame):
 class App():
     def __init__(self) -> None:
         self.last_scene = None
-        self.current_language = internal.make_random_language()
-        self.language_pack = spanish(self.current_language)
-
+        self.model = TranslatorModel()
+        self.language_pack = spanish(self.model.current_language)
 
     def demo(self, screen, scene):
         
         scenes = [
             HomeScene(screen, self.language_pack, name="Tab1"),
-            NewLanguageScene(screen, self.language_pack, self.current_language, name="Tab2"),
+            NewLanguageScene(screen, self.model, name="Tab2"),
             Scene([BravoPage(screen)], -1, name="Tab3"),
         ]
         screen.play(scenes, stop_on_resize=True, start_scene=scene, allow_int=True)
