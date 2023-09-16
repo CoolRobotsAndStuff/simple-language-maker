@@ -24,6 +24,9 @@ import tkinter
 
 from tkinter import filedialog
 
+from subprocess import call
+import os
+
 my_palette = defaultdict(
         lambda: (Screen.COLOUR_WHITE, Screen.A_NORMAL, Screen.COLOUR_BLACK),
         {
@@ -56,7 +59,7 @@ class TranslatorModel:
         try:
             if isinstance(file_path, str):
                 internal.save_to_file(Path(file_path), self.current_generated_language)
-        except IsADirectoryError:
+        except (IsADirectoryError, PermissionError):
             pass
     
     def open_language_from_file(self):
@@ -65,7 +68,7 @@ class TranslatorModel:
             if isinstance(file, str):
                 self.current_loaded_language = internal.open_from_file(Path(file))
                 self.language_pack = spanish(self.current_generated_language, self.current_loaded_language)
-        except IsADirectoryError:
+        except (IsADirectoryError, PermissionError):
             pass
 
     def translate_file(self):
@@ -86,7 +89,7 @@ class TranslatorModel:
                 if isinstance(output_file_name, str):
                     with open(output_file_name, "w") as output_file:
                         output_file.write(translated)
-        except IsADirectoryError:
+        except (IsADirectoryError, PermissionError):
             pass
 
     def detranslate_file(self):
@@ -106,7 +109,7 @@ class TranslatorModel:
                 if isinstance(output_file_name, str):
                     with open(output_file_name, "w") as output_file:
                         output_file.write(translated)
-        except IsADirectoryError:
+        except (IsADirectoryError, PermissionError):
             pass
 
 class TabButtons(Layout):
@@ -185,6 +188,7 @@ class NewLanguageUIFrame(Frame):
         self.title_box = WrappedTextBox(1, line_wrap=True, readonly=True, justify='center')
         self.title_box.value = self._model.language_pack["new_language"]["title"]
         self.title_box.disabled = True
+
 
 
         instructions_box = WrappedTextBox(4, line_wrap=True, readonly=True, justify='left')
@@ -376,5 +380,8 @@ class App():
                 self.last_scene = e.scene
 
 if __name__ == "__main__":
+    # If running on windows, activate UTF-8
+    if os.name == 'nt':
+        os.system('chcp 65001')
     app = App()
     app.run()
