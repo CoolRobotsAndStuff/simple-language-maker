@@ -2,30 +2,23 @@
 
 from collections import defaultdict
 import sys
-import random
-import textwrap
 
-from asciimatics.widgets import Frame, Layout, Divider, Button, TextBox, Widget, VerticalDivider, ListBox
+from asciimatics.widgets import Frame, Layout, Divider, Button, Widget, VerticalDivider, ListBox
 from asciimatics.scene import Scene
-from asciimatics.renderers import SpeechBubble
-from asciimatics.effects import Print
 from asciimatics.screen import Screen
 from asciimatics.exceptions import ResizeScreenError, NextScene, StopApplication
-from asciimatics import utilities
-from asciimatics.strings import ColouredText
 
 from src import internal
-from src.cli.custom_widgets import WrappedTextBox, Title, WrappedTextBoxEffect
+from src.cli.custom_widgets import WrappedTextBox, WrappedTextBoxEffect
 from src.cli.languages import spanish
 
 from pathlib import Path
 
 import tkinter
-
 from tkinter import filedialog
 
-from subprocess import call
 import os
+import signal
 
 my_palette = defaultdict(
         lambda: (Screen.COLOUR_WHITE, Screen.A_NORMAL, Screen.COLOUR_BLACK),
@@ -68,7 +61,7 @@ class TranslatorModel:
             if isinstance(file, str):
                 self.current_loaded_language = internal.open_from_file(Path(file))
                 self.language_pack = spanish(self.current_generated_language, self.current_loaded_language)
-        except (IsADirectoryError, PermissionError):
+        except (IsADirectoryError, PermissionError, FileNotFoundError):
             pass
 
     def translate_file(self):
@@ -89,7 +82,7 @@ class TranslatorModel:
                 if isinstance(output_file_name, str):
                     with open(output_file_name, "w") as output_file:
                         output_file.write(translated)
-        except (IsADirectoryError, PermissionError):
+        except (IsADirectoryError, PermissionError, FileNotFoundError):
             pass
 
     def detranslate_file(self):
@@ -109,7 +102,7 @@ class TranslatorModel:
                 if isinstance(output_file_name, str):
                     with open(output_file_name, "w") as output_file:
                         output_file.write(translated)
-        except (IsADirectoryError, PermissionError):
+        except (IsADirectoryError, PermissionError, FileNotFoundError):
             pass
 
 class TabButtons(Layout):
@@ -375,7 +368,8 @@ class App():
         while True:
             try:
                 Screen.wrapper(self.demo, catch_interrupt=False, arguments=[self.last_scene])
-                sys.exit(0)
+                # Closed terminal after exiting
+                os.kill(os.getppid(), signal.SIGHUP)
             except ResizeScreenError as e:
                 self.last_scene = e.scene
 
@@ -385,3 +379,5 @@ if __name__ == "__main__":
         os.system('chcp 65001')
     app = App()
     app.run()
+    
+

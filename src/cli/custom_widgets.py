@@ -115,11 +115,3 @@ class WrappedTextBoxEffect(Print):
                 wrapped_text.append(wrapped_subline)
         
         return "\n".join(wrapped_text), len(wrapped_text)
-
-class Title(WrappedTextBox):
-    def __init__(self, text: str, label=None, name=None, **kwargs):
-        super().__init__(1, label, name, as_string=True, line_wrap=True, parser=None, on_change=None, readonly=True, justify='center', **kwargs)
-        self.value = text
-        self.disabled = True
-
-        self._h = len(self.value)
