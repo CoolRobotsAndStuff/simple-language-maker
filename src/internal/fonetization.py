@@ -1,6 +1,5 @@
 import unicodedata
 import pylabeador
-from nltk.tokenize import sent_tokenize
 import re
 import src.internal.spanish_utils as su
 
@@ -112,12 +111,12 @@ def fonetize(base_text: str) -> str:
 
     fonetized_paragraphs = []
     for p in base_paragraphs:
-        sentences = sent_tokenize(p, language="spanish")
-        fonetized_sentences = []
-        for sentence in sentences:
-            fonetized_sentences.append(fonetize_sentence(sentence))
+        #sentences = sent_tokenize(p, language="spanish")
+        #fonetized_sentences = []
+        #for sentence in sentences:
+            #fonetized_sentences.append(fonetize_sentence(sentence))
 
-        fonetized_paragraphs.append(" ".join(fonetized_sentences))
+        fonetized_paragraphs.append(fonetize_sentence(p))
     
     return "\n".join(fonetized_paragraphs)
 
