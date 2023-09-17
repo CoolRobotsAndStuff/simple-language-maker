@@ -94,7 +94,7 @@ def fonetize_sentence(sentence: str):
         r'(?<![\S\s])v' : 'b', # replace 'v' with 'b' if at the start of word
         r'(?<=[\s])v' : 'b', # replace 'v' with 'b' if at the start of word
         r'ü' : 'u',
-        r'(?<=\s)r(?=\S)(?!r)' : 'rr', 
+        r'(?<!\S)r(?=\S)(?!r)' : 'rr', 
         r'w' : 'u',
         r'x' : 'ks',
     }
