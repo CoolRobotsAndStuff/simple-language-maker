@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-
 from collections import defaultdict
-import sys
 
-from asciimatics.widgets import Frame, Layout, Divider, Button, Widget, VerticalDivider, ListBox
+
+from asciimatics.widgets import Frame, Layout, Divider, Button, Widget, VerticalDivider, ListBox, TextBox
 from asciimatics.scene import Scene
 from asciimatics.screen import Screen
 from asciimatics.exceptions import ResizeScreenError, NextScene, StopApplication
@@ -197,18 +196,18 @@ class NewLanguageUIFrame(Frame):
         self.add_layout(divider_layout15)
         divider_layout15.add_widget(Divider())
 
-        translator_layout = Layout([18, 1, 18], fill_frame=True)
+        translator_layout = Layout([1, 17, 1, 17], fill_frame=True)
         self.add_layout(translator_layout)
         self.translation_text = WrappedTextBox(Widget.FILL_COLUMN, line_wrap=True, readonly=True)
-        translator_layout.add_widget(self.translation_text, 2)
+        translator_layout.add_widget(self.translation_text, 3)
         #self.translation_text.disabled = True
         self.translation_text.value = [""]
 
-        translator_layout.add_widget(VerticalDivider(), 1)
+        translator_layout.add_widget(VerticalDivider(), 2)
 
         self.input_text = WrappedTextBox(Widget.FILL_COLUMN, line_wrap=True, on_change=self.on_text_edit)
         self.input_text.value = self._model.language_pack["new_language"]["test_poetry"]
-        translator_layout.add_widget(self.input_text, 0)
+        translator_layout.add_widget(self.input_text, 1)
 
         divider_layout2 = Layout([1])
         self.add_layout(divider_layout2)
@@ -293,18 +292,18 @@ class TranslatorUIFrame(Frame):
         self.add_layout(divider_layout15)
         divider_layout15.add_widget(Divider())
 
-        translator_layout = Layout([18, 1, 18], fill_frame=True)
+        translator_layout = Layout([1, 17, 1, 17], fill_frame=True)
         self.add_layout(translator_layout)
         self.translation_text = WrappedTextBox(Widget.FILL_COLUMN, line_wrap=True, readonly=True)
-        translator_layout.add_widget(self.translation_text, 2)
+        translator_layout.add_widget(self.translation_text, 3)
         #self.translation_text.disabled = True
         self.translation_text.value = [""]
 
-        translator_layout.add_widget(VerticalDivider(), 1)
+        translator_layout.add_widget(VerticalDivider(), 2)
 
         self.input_text = WrappedTextBox(Widget.FILL_COLUMN, line_wrap=True, on_change=self.on_text_edit)
         self.input_text.value = self._model.language_pack["translator"]["text_hint"]
-        translator_layout.add_widget(self.input_text, 0)
+        translator_layout.add_widget(self.input_text, 1)
 
         divider_layout2 = Layout([1])
         self.add_layout(divider_layout2)
