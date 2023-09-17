@@ -35,6 +35,7 @@ class WrappedTextBox(TextBox):
                 limit = self._w - self._offset
                 if limit == 0:
                     return self._reflowed_text_cache
+                
                 for line_index, line in enumerate(self._value):
                     if line == '':
                         wrapped_line = ['']
@@ -67,7 +68,7 @@ class WrappedTextBox(TextBox):
     @value.setter
     def value(self, new_value):
         # Convert to the internal format
-        old_value = deepcopy(self._value)
+        old_value = self._value
         if new_value is None:
             new_value = [""]
         elif self._as_string:
@@ -115,3 +116,11 @@ class WrappedTextBoxEffect(Print):
                 wrapped_text.append(wrapped_subline)
         
         return "\n".join(wrapped_text), len(wrapped_text)
+
+class Title(WrappedTextBox):
+    def __init__(self, text: str, label=None, name=None, **kwargs):
+        super().__init__(1, label, name, as_string=True, line_wrap=True, parser=None, on_change=None, readonly=True, justify='center', **kwargs)
+        self.value = text
+        self.disabled = True
+
+        self._h = len(self.value)
