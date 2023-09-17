@@ -10,7 +10,9 @@ def spanish(generated_language: internal.SimpleLanguage, loaded_language: intern
     languaje_adjective = random.choice(("increíble", "hermoso", "curioso", "complejo", "interesante", "harmonioso", "bello", "difícil"))
 
     return  {   "home":          {  "title":        [f"¡Bienvenido al Creador de Idiomas Simple! o '{internal.translate(app_name, generated_language)}' en el idioma '{generated_language.name}'"],
-                                    "instructions": ['¿Que deseas hacer?', 
+                                    "instructions": ['Nota: es recomendable que utilizes este programa en pantalla completa.',
+                                                    '',
+                                                    '¿Que deseas hacer?', 
                                                     ' ', 
                                                     '* Para crear un nuevo idioma presiona «Nuevo»',
                                                     '* Para cargar un idioma desde un archivo y traducir presiona «Traducir»',
@@ -59,6 +61,16 @@ def spanish(generated_language: internal.SimpleLanguage, loaded_language: intern
                 "file":     {       "translated_to": "traducido_a",
                                     "nat_lang_name": "español"
 
-                                    }               
+                                    },
+                "manual":   {       "title": ["Manual de Instrucciones"],
+                                    "instructions": [
+                                        "El Creador de Idiomas Simple tiene dos funciones principales: la creación de idiomas y la traducción a dichos idiomas.",
+                                        "### Creando un nuevo idioma ###"
+                                        "Para empezar diríjete a la pestaña de «Nuevo», allí encontrarás dos columnas, una con un texto de prueba que puedes editar, y otra con ese texto traducido a otro idioma. Este idioma fué previamente generado de manera aleatoria.",
+                                        "",
+                                        "   #Cómo leer un nuevo idioma#"
+                                        "En esta pantalla puedes probar de traducir lo que quieras al idioma y ver si te gusta. Si no te convence, puedes presionar el botón de <Nuevo Idioma>"]
+
+                                    }  
                                 }
                 
