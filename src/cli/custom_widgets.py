@@ -4,6 +4,7 @@ from asciimatics.effects import Print
 from asciimatics.renderers import SpeechBubble
 from asciimatics.strings import ColouredText
 
+
 from copy import deepcopy
 
 class WrappedTextBox(TextBox):
@@ -95,7 +96,7 @@ class WrappedTextBox(TextBox):
     
 class WrappedTextBoxEffect(Print):
     def __init__(self, screen, text: list, width, justify='center', uni=True, y=0, x=None):
-        assert justify in ('center', 'left', 'right')
+        assert justify in ('center', 'left', 'right') or justify is None
         self.text = "\n".join(text)
         self.width = width
         self.wrapped_text, text_height = self.wrap_text(self.text, self.width, justify)
@@ -107,12 +108,15 @@ class WrappedTextBoxEffect(Print):
         for line in text.split("\n"):
             wrapped_line = textwrap.wrap(line, width, replace_whitespace=False)
             for subline in wrapped_line:
-                if justify == 'left':
-                    wrapped_subline = subline.ljust(width)
-                elif justify == 'right':
-                    wrapped_subline = subline.rjust(width)
+                if justify is not None:
+                    if justify == 'left':
+                        wrapped_subline = subline.ljust(width)
+                    elif justify == 'right':
+                        wrapped_subline = subline.rjust(width)
+                    else:
+                        wrapped_subline = subline.center(width)
                 else:
-                    wrapped_subline = subline.center(width)
+                    wrapped_subline = subline
                 wrapped_text.append(wrapped_subline)
         
         return "\n".join(wrapped_text), len(wrapped_text)

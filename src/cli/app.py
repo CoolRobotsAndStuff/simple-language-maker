@@ -106,12 +106,13 @@ class TranslatorModel:
 
 class TabButtons(Layout):
     def __init__(self, frame: Frame, active_tab_idx):
-        cols = [1, 1, 1]
+        cols = [1, 1, 1, 1]
         super().__init__(cols)
         self._frame = frame
         btns = [Button("Inicio", self._on_click_1),
                 Button("Nuevo", self._on_click_2),
                 Button("Traducir", self._on_click_3),
+                Button("Manual", self._on_click_4),
                 Button("Salir", self._on_click_Q)]
         del btns[active_tab_idx]
         for i, btn in enumerate(btns):
@@ -125,6 +126,9 @@ class TabButtons(Layout):
 
     def _on_click_3(self):
         raise NextScene("Tab3")
+    
+    def _on_click_4(self):
+        raise NextScene("Tab4")
     
     def _on_click_Q(self):
         raise StopApplication("Salir")
@@ -239,6 +243,58 @@ class NewLanguageUIFrame(Frame):
 class NewLanguageScene(Scene):
     def __init__(self, screen, model, clear=True, name=None):
         super().__init__([NewLanguageUIFrame(screen, model, y=0)], -1, clear, name)
+
+
+class ManualUIFrame(Frame):
+    def __init__(self, screen: Screen, model: TranslatorModel, y):
+        self._model = model
+
+        super().__init__(screen,
+                         height=screen.height - y,
+                         width=screen.width,
+                         can_scroll=False, y=y)
+        self.palette = my_palette
+
+        self.my_screen = screen
+
+
+        title_layout = Layout([1, 10, 1], fill_frame=True)
+        self.add_layout(title_layout)
+        self.title_box = WrappedTextBox(1, line_wrap=True, readonly=True, justify='center')
+        self.title_box.value = self._model.language_pack["manual"]["title"]
+        self.title_box.disabled = True
+
+
+
+        instructions_box = WrappedTextBox(height=Widget.FILL_FRAME, line_wrap=True, readonly=True, justify='left')
+        instructions_box.value = self._model.language_pack["manual"]["instructions"]
+        instructions_box.auto_scroll = False
+        instructions_box._line = 0
+        #instructions_box.disabled = True
+
+
+        title_layout.add_widget(self.title_box, 1)
+        title_layout.add_widget(Divider(), 1)
+        title_layout.add_widget(instructions_box, 1)
+
+        divider_layout3 = Layout([1])
+        self.add_layout(divider_layout3)
+        divider_layout3.add_widget(Divider())
+
+        tab_buttons_layout = TabButtons(self, 3)
+        self.add_layout(tab_buttons_layout)
+        self.fix()
+
+
+    def new_language(self):
+        self._model.set_random_language()
+        self.on_text_edit()
+        self.title_box.value = self._model.language_pack["new_language"]["title"]
+
+
+class ManualScene(Scene):
+    def __init__(self, screen, model, clear=True, name=None):
+        super().__init__([ManualUIFrame(screen, model, y=0)], -1, clear, name)
 
 
 class TranslatorUIFrame(Frame):
@@ -360,6 +416,7 @@ class App():
             HomeScene(screen, self.model.language_pack, name="Tab1"),
             NewLanguageScene(screen, self.model, name="Tab2"),
             Scene([TranslatorUIFrame(screen, self.model, 0)], -1, name="Tab3"),
+            ManualScene(screen, self.model, name="Tab4")
         ]
         screen.play(scenes, stop_on_resize=True, start_scene=scene, allow_int=True)
 
